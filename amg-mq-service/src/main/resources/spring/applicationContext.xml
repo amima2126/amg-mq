@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:task="http://www.springframework.org/schema/task" xmlns:jee="http://www.springframework.org/schema/jee"
+	xmlns:jms="http://www.springframework.org/schema/jms"
+	xsi:schemaLocation="
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
+		http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+		http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee.xsd
+		http://www.springframework.org/schema/jms http://www.springframework.org/schema/jms/spring-jms.xsd">
+		
+	<!-- 加载资源文件 -->
+	<context:property-placeholder location="classpath:properties/*.properties" />
+	<import resource="dubbo.xml"/>
+	<import resource="jms.xml"/>
+	
+	<context:component-scan base-package="com.aomygod.mq" />
+    <!-- <mvc:annotation-driven /> -->
+    
+	<!-- 数据库持久化 -->	
+	<bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource"
+		destroy-method="close" primary="true">
+		<property name="driverClass" value="${jdbc.driverClass:com.mysql.jdbc.Driver}" />
+		<property name="jdbcUrl" value="${jdbc.url}" />
+		<property name="user" value="${jdbc.user}" />
+		<property name="password" value="${jdbc.pwd}" />
+		<property name="maxPoolSize" value="${jdbc.maxPoolSize:500}" />
+		<property name="acquireIncrement" value="${jdbc.acquireIncrement:10}" />
+		<property name="initialPoolSize" value="${jdbc.minPoolSize:100}" />
+		<property name="minPoolSize" value="${jdbc.minPoolSize:100}" />
+		<property name="maxIdleTime" value="${jdbc.maxIdleTime:100}" />
+		<property name="autoCommitOnClose" value="${jdbc.autoCommit:false}" />
+		<property name="checkoutTimeout" value="${c3p0.checkoutTimeout:30000}" />
+		<property name="maxIdleTimeExcessConnections" value="${c3p0.maxIdleTimeExcessConnections:60}" />
+		<property name="idleConnectionTestPeriod" value="${c3p0.idleConnectionTestPeriod:50}" />
+	</bean>
+	<bean id="jdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate" primary="true">
+		<property name="dataSource" ref="dataSource" />
+	</bean>
+	<bean id="transactionManager"
+		class="org.springframework.jdbc.datasource.DataSourceTransactionManager"
+		primary="true">
+		<property name="dataSource" ref="dataSource" />
+	</bean>
+	<tx:annotation-driven transaction-manager="transactionManager" />
+	<!-- 数据库持久化 -->
+</beans>
